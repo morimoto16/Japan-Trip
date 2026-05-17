@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鳥取・岡山 三天兩夜行程表</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --warm: #2d1b00;
+    --sand: #f5f0e8;
+    --accent: #c0392b;
+    --gold: #b8860b;
+    --muted: #7a6f5f;
+    --light: #faf8f4;
+    --border: #e0d8cc;
+    --d1: #2c5f2e;
+    --d2: #1a3a5c;
+    --d3: #6b2737;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--light);
+    color: var(--ink);
+    line-height: 1.7;
+    font-size: 14px;
+  }
+
+  /* HEADER */
+  .hero {
+    background: var(--warm);
+    color: var(--sand);
+    padding: 48px 32px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 40%;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 8px,
+      rgba(255,255,255,0.03) 8px,
+      rgba(255,255,255,0.03) 16px
+    );
+  }
+  .hero-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .hero-sub {
+    font-size: 13px;
+    opacity: 0.7;
+    letter-spacing: 0.1em;
+    margin-bottom: 24px;
+  }
+  .hero-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  /* NAV TABS */
+  .tabs {
+    display: flex;
+    background: var(--ink);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 14px 8px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn.active { color: #fff; }
+  .tab-btn[data-day="1"].active { border-color: var(--d1); }
+  .tab-btn[data-day="2"].active { border-color: var(--d2); }
+  .tab-btn[data-day="3"].active { border-color: var(--d3); }
+  .tab-btn[data-day="info"].active { border-color: var(--gold); }
+  .tab-btn[data-day="prep"].active { border-color: #888; }
+
+  /* CONTENT PANELS */
+  .panel { display: none; padding: 24px 20px; max-width: 680px; margin: 0 auto; }
+  .panel.active { display: block; }
+
+  /* DAY HEADER */
+  .day-header {
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    color: white;
+  }
+  .day-header.d1 { background: var(--d1); }
+  .day-header.d2 { background: var(--d2); }
+  .day-header.d3 { background: var(--d3); }
+  .day-header .day-num { font-size: 11px; opacity: 0.8; letter-spacing: 0.1em; margin-bottom: 2px; }
+  .day-header .day-title { font-family: 'Noto Serif TC', serif; font-size: 18px; font-weight: 700; }
+  .day-header .day-route { font-size: 12px; opacity: 0.75; margin-top: 4px; }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 56px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 8px; bottom: 8px;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .event {
+    position: relative;
+    margin-bottom: 20px;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .event::before {
+    content: attr(data-icon);
+    position: absolute;
+    left: -42px;
+    top: 14px;
+    width: 28px;
+    height: 28px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 28px;
+    text-align: center;
+  }
+
+  .event-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 12px 14px 8px;
+  }
+  .event-time {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+    white-space: nowrap;
+    min-width: 80px;
+  }
+  .event-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .event-body {
+    padding: 0 14px 12px;
+    font-size: 13px;
+    color: #444;
+  }
+  .event-body p { margin-bottom: 4px; }
+
+  .chip {
+    display: inline-block;
+    background: var(--sand);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 11px;
+    color: var(--muted);
+    margin-right: 4px;
+    margin-bottom: 4px;
+  }
+  .chip.red { background: #fde8e8; color: var(--accent); }
+  .chip.green { background: #e8f4e8; color: var(--d1); }
+  .chip.blue { background: #e8eff8; color: var(--d2); }
+
+  .map-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--d2);
+    text-decoration: none;
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  .map-link:hover { text-decoration: underline; }
+  .map-link::before { content: '📍'; font-size: 11px; }
+
+  /* TRANSPORT BLOCK */
+  .transport {
+    background: #f8f6f2;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .transport-icon { font-size: 18px; flex-shrink: 0; }
+  .transport-info { flex: 1; }
+  .transport-info .route { font-weight: 600; font-size: 13px; }
+  .transport-info .meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* WARNING / NOTE */
+  .note {
+    background: #fff8e6;
+    border-left: 3px solid var(--gold);
+    border-radius: 0 6px 6px 0;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #5a4500;
+    margin-top: 8px;
+  }
+  .note::before { content: '⚠️ '; }
+
+  /* COST SUMMARY */
+  .cost-box {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .cost-header {
+    background: var(--ink);
+    color: white;
+    padding: 10px 16px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 15px;
+  }
+  .cost-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .cost-row:last-child { border-bottom: none; }
+  .cost-row.total {
+    background: var(--sand);
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .cost-row .label { color: var(--muted); }
+  .cost-row .amount { font-weight: 600; color: var(--ink); }
+  .cost-row.total .amount { color: var(--accent); font-size: 16px; }
+
+  /* INFO SECTION */
+  .info-section {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .info-section-title {
+    background: var(--sand);
+    padding: 10px 16px;
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 700;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .info-item {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .info-item:last-child { border-bottom: none; }
+  .info-item strong { color: var(--ink); display: block; margin-bottom: 2px; }
+  .info-item p { color: #444; }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; }
+  .checklist li {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li input[type="checkbox"] {
+    width: 16px; height: 16px; cursor: pointer; flex-shrink: 0;
+    accent-color: var(--d1);
+  }
+  .checklist li.checked { text-decoration: line-through; color: var(--muted); }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+  }
+
+  .hotel-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .hotel-card .name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .hotel-card .details { font-size: 12px; color: var(--muted); }
+  .hotel-card .amenities { margin-top: 8px; }
+
+  footer {
+    text-align: center;
+    padding: 32px 20px;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-title">🗾 鳥取・岡山 三天兩夜</div>
+  <div class="hero-sub">2025年5月18日（日）— 5月20日（二）</div>
+  <div class="hero-tags">
+    <span class="tag">✈️ 台灣虎航</span>
+    <span class="tag">🚗 自駕 D1</span>
+    <span class="tag">🚌 觀光計程車 D2</span>
+    <span class="tag">🚂 JR</span>
+    <span class="tag">👨‍👩‍👦 三人同行</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" data-day="1" onclick="switchTab('d1', this)">D1 米子→鳥取</button>
+  <button class="tab-btn" data-day="2" onclick="switchTab('d2', this)">D2 鳥取→岡山</button>
+  <button class="tab-btn" data-day="3" onclick="switchTab('d3', this)">D3 岡山→桃園</button>
+  <button class="tab-btn" data-day="info" onclick="switchTab('info', this)">住宿 &amp; 費用</button>
+  <button class="tab-btn" data-day="prep" onclick="switchTab('prep', this)">行前準備</button>
+</div>
+
+<!-- D1 -->
+<div class="panel active" id="d1">
+  <div class="day-header d1">
+    <div class="day-num">DAY 1 ▸ 5月18日（日）</div>
+    <div class="day-title">米子鬼太郎空港 → 境港 → 鳥取</div>
+    <div class="day-route">🚗 自駕全程，傍晚還車鳥取站前</div>
+  </div>
+
+  <div class="timeline">
+
+    <div class="event" data-icon="✈️">
+      <div class="event-header">
+        <div class="event-time">08:35 出發</div>
+        <div class="event-title">IT724 桃園→米子鬼太郎機場</div>
+      </div>
+      <div class="event-body">
+        <span class="chip">台灣虎航</span>
+        <span class="chip">飛行約 2.5h</span>
+        <p style="margin-top:6px">抵達米子後過海關、提領行李約需 30–40 分鐘。建議預留時間，機場較小通常順暢。</p>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🍜">
+      <div class="event-header">
+        <div class="event-time">12:00–13:00</div>
+        <div class="event-title">午餐：機場螃蟹拉麵</div>
+      </div>
+      <div class="event-body">
+        <p>落地直接在機場解決午餐，有螃蟹拉麵可吃，吃完再去取車。</p>
+        <a class="map-link" href="https://maps.app.goo.gl/GDx1SpoKESaCyBeAA" target="_blank">Google Map 導航</a>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🚗">
+      <div class="event-header">
+        <div class="event-time">13:30</div>
+        <div class="event-title">取車｜Toyota Rent-a-Car 米子鬼太郎機場店</div>
+      </div>
+      <div class="event-body">
+        <span class="chip blue">車型：Prius C3 2.0</span>
+        <p style="margin-top:6px">辦理手續約 15–20 分鐘。記得確認 ETC 卡和導航語言設定。</p>
+        <a class="map-link" href="https://maps.app.goo.gl/DULmNkXu7h6QMxMy8" target="_blank">取車地點</a>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🦀">
+      <div class="event-header">
+        <div class="event-time">14:00–15:30</div>
+        <div class="event-title">境港漁市場</div>
+      </div>
+      <div class="event-body">
+        <span class="chip green">車程約 20 分</span>
+        <p>境港是日本數一數二的漁港，可以在市場挑選新鮮螃蟹、海產，吃完再繼續出發。</p>
+        <a class="map-link" href="https://maps.app.goo.gl/rS5E7AUGq4ePSJLs5" target="_blank">境港水産物直売センター</a>
+        <div class="note">境港市場通常下午較早收攤，建議 15:30 前離開。</div>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🕵️">
+      <div class="event-header">
+        <div class="event-time">16:00–17:00</div>
+        <div class="event-title">青山剛昌ふるさと館（柯南故事館）</div>
+      </div>
+      <div class="event-body">
+        <span class="chip green">車程約 30 分</span>
+        <span class="chip">門票：大人 ¥700</span>
+        <p>柯南作者青山剛昌的老家就在北榮町，這裡是官方紀念館，展示原稿、手稿與各種珍貴展品，柯南迷必來。</p>
+        <a class="map-link" href="https://maps.app.goo.gl/TirEJhAHTa7NGEDF7" target="_blank">青山剛昌ふるさと館</a>
+        <div class="transport">
+          <div class="transport-icon">🚗</div>
+          <div class="transport-info">
+            <div class="route">境港 → 北榮町（柯南故事館）</div>
+            <div class="meta">車程約 30 分 ▸ 約 30km</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="event" data-icon="⛩️">
+      <div class="event-header">
+        <div class="event-time">17:15–17:45</div>
+        <div class="event-title">白兔神社（白兎神社）</div>
+      </div>
+      <div class="event-body">
+        <span class="chip green">車程約 20 分</span>
+        <span class="chip">免費參拜</span>
+        <p>《古事記》中「因幡白兔」的故事發源地，祭祀大國主命與八上姫，是日本著名的戀愛結緣神社，爸媽也可以在這裡求個好緣。</p>
+        <a class="map-link" href="https://maps.app.goo.gl/WHx3DxaL7JaV9Z997" target="_blank">白兎神社</a>
+        <div class="note">17:45 前務必出發，白兔神社→鳥取站前約 50 分鐘，趕 19:00 還車。</div>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🚗">
+      <div class="event-header">
+        <div class="event-time">17:45 出發</div>
+        <div class="event-title">開車前往鳥取站前還車</div>
+      </div>
+      <div class="event-body">
+        <div class="transport">
+          <div class="transport-icon">🚗</div>
+          <div class="transport-info">
+            <div class="route">白兔神社 → 鳥取駅前店（還車）</div>
+            <div class="meta">車程約 50 分 ▸ 距離約 47km</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🚗">
+      <div class="event-header">
+        <div class="event-time">19:00</div>
+        <div class="event-title">還車｜Toyota Rent-a-Car 鳥取駅前店</div>
+      </div>
+      <div class="event-body">
+        <a class="map-link" href="https://maps.app.goo.gl/8Jt3NW3q7uFgXL3T9" target="_blank">鳥取駅前店</a>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🏨">
+      <div class="event-header">
+        <div class="event-time">19:15</div>
+        <div class="event-title">Check-in｜鳥取駅前超級酒店</div>
+      </div>
+      <div class="event-body">
+        <span class="chip">步行約 5 分鐘</span>
+        <a class="map-link" href="https://maps.app.goo.gl/torikisuperhotel" target="_blank">超級酒店 鳥取駅前</a>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🍽️">
+      <div class="event-header">
+        <div class="event-time">20:00</div>
+        <div class="event-title">晚餐（預定餐廳）</div>
+      </div>
+      <div class="event-body">
+        <a class="map-link" href="https://maps.app.goo.gl/6uotUW2Sb9m5kLww5" target="_blank">預定餐廳 Google Map</a>
+        <p style="margin-top:6px; font-size:12px; color:var(--muted)">建議事先確認營業時間與是否需要訂位。</p>
+      </div>
+    </div>
+
+  </div><!-- end timeline -->
+
+  <div class="section-label">D1 交通費用概覽（3人）</div>
+  <div class="cost-box">
+    <div class="cost-row"><span class="label">螃蟹拉麵午餐（3人）</span><span class="amount">約 ¥3,000</span></div>
+    <div class="cost-row"><span class="label">租車（米子→鳥取，一日）</span><span class="amount">需事先確認</span></div>
+    <div class="cost-row"><span class="label">柯南故事館（3人）</span><span class="amount">¥2,100</span></div>
+    <div class="cost-row"><span class="label">境港漁市場（海產消費）</span><span class="amount">依消費</span></div>
+    <div class="cost-row"><span class="label">晚餐（3人）</span><span class="amount">約 ¥4,500–6,000</span></div>
+    <div class="cost-row total"><span class="label">D1 預估小計</span><span class="amount">¥10,000+</span></div>
+  </div>
+</div>
+
+<!-- D2 -->
+<div class="panel" id="d2">
+  <div class="day-header d2">
+    <div class="day-num">DAY 2 ▸ 5月19日（一）</div>
+    <div class="day-title">鳥取觀光計程車 → JR → 岡山</div>
+    <div class="day-route">🚌 早上觀光計程車・下午 JR 移動</div>
+  </div>
+
+  <div class="timeline">
+
+    <div class="event" data-icon="🍳">
+      <div class="event-header">
+        <div class="event-time">07:00–08:15</div>
+        <div class="event-title">早餐｜超級酒店</div>
+      </div>
+      <div class="event-body">
+        <p>超級酒店附有自助早餐，可以慢慢吃，養精蓄銳準備一天行程。</p>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🚌">
+      <div class="event-header">
+        <div class="event-time">08:30 集合</div>
+        <div class="event-title">觀光計程車｜9號線：若櫻鐵道・若櫻宿歷史漫遊</div>
+      </div>
+      <div class="event-body">
+        <span class="chip red">⚠️ 需事先預約</span>
+        <p style="margin-top:6px"><strong>路線：</strong>鳥取站 → 三百田氏住宅 → 不動院岩屋堂 → 若櫻鐵道若櫻宿（仮屋大街・土蔵群小巷）→ 鳥取站</p>
+        <p style="margin-top:6px; font-size:12px; color:var(--muted)">行程約 4 小時。三百田氏住宅是保存完整的武家古宅，不動院岩屋堂是鑿山而成的岩窟寺院，若櫻宿老街保留江戶時代街景。非常適合帶長輩悠閒遊覽。</p>
+        <a class="map-link" href="https://www.tottori-guide.jp/kanko-taxi/" target="_blank">鳥取觀光計程車官網（事先預約）</a>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🍱">
+      <div class="event-header">
+        <div class="event-time">12:30–13:30</div>
+        <div class="event-title">午餐｜鳥取站周邊</div>
+      </div>
+      <div class="event-body">
+        <p>推薦選項：</p>
+        <p>・<strong>鳥取牛骨拉麵</strong>｜鳥取名物，湯底清爽，爸媽容易接受</p>
+        <p>・<strong>因幡的白兔定食</strong>｜鳥取駅周邊的海鮮定食</p>
+        <a class="map-link" href="https://maps.app.goo.gl/Tottori-Station" target="_blank">鳥取站周邊餐廳</a>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🚂">
+      <div class="event-header">
+        <div class="event-time">14:30–15:00</div>
+        <div class="event-title">搭 JR 前往岡山</div>
+      </div>
+      <div class="event-body">
+        <div class="transport">
+          <div class="transport-icon">🚂</div>
+          <div class="transport-info">
+            <div class="route">鳥取駅 → 岡山駅</div>
+            <div class="meta">JR 特急スーパーいなば ▸ 約 2.5–3 小時 ▸ 大人 ¥3,960/人</div>
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--muted)">建議提前查好班次（Google Maps 或 Navitime），並可至 JR 窗口購買指定席（¥510加購）帶長輩坐比較舒適。3人合計約 ¥12,000–14,000。</p>
+        <div class="note">確認鳥取出發時間，使 D2 晚上能在 20:00 前抵達飯店辦理 check-in。</div>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🚶">
+      <div class="event-header">
+        <div class="event-time">17:30–19:30</div>
+        <div class="event-title">抵達岡山・輕鬆散步</div>
+      </div>
+      <div class="event-body">
+        <p>行程滿，抵達岡山後可以在岡山駅周邊逛逛、找便利商店補給，或到岡山一番街購物中心短暫休息。</p>
+        <a class="map-link" href="https://maps.app.goo.gl/OkayamaStation" target="_blank">岡山駅</a>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🏨">
+      <div class="event-header">
+        <div class="event-time">20:00</div>
+        <div class="event-title">Check-in｜岡山駅東口スーパーホテル</div>
+      </div>
+      <div class="event-body">
+        <span class="chip green">含天然溫泉</span>
+        <span class="chip green">含早餐</span>
+        <p>入住後記得泡個天然溫泉，D2 行程豐富，好好讓爸媽休息一下！</p>
+        <a class="map-link" href="https://maps.app.goo.gl/OkayamaSuperHotel" target="_blank">岡山駅東口スーパーホテル</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-label">D2 費用概覽（3人）</div>
+  <div class="cost-box">
+    <div class="cost-row"><span class="label">觀光計程車 9 號線（3人）</span><span class="amount">約 ¥9,000–12,000</span></div>
+    <div class="cost-row"><span class="label">午餐（3人）</span><span class="amount">約 ¥3,000–4,500</span></div>
+    <div class="cost-row"><span class="label">JR 鳥取→岡山（3人，指定席）</span><span class="amount">約 ¥13,500</span></div>
+    <div class="cost-row total"><span class="label">D2 預估小計</span><span class="amount">約 ¥25,000–30,000</span></div>
+  </div>
+</div>
+
+<!-- D3 -->
+<div class="panel" id="d3">
+  <div class="day-header d3">
+    <div class="day-num">DAY 3 ▸ 5月20日（二）</div>
+    <div class="day-title">岡山遊覽 → 桃太郎機場 → 桃園</div>
+    <div class="day-route">✈️ IT215 岡山 15:55 → 桃園 17:40</div>
+  </div>
+
+  <div class="timeline">
+
+    <div class="event" data-icon="🍳">
+      <div class="event-header">
+        <div class="event-time">07:30–08:30</div>
+        <div class="event-title">早餐｜飯店自助早餐</div>
+      </div>
+      <div class="event-body">
+        <p>超級酒店含早餐，好好享用。今天最晚 13:30 要出發去機場，時間充裕但別拖太久！</p>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🌿">
+      <div class="event-header">
+        <div class="event-time">09:00–11:00</div>
+        <div class="event-title">岡山後樂園</div>
+      </div>
+      <div class="event-body">
+        <span class="chip">大人 ¥500 / 65歲以上 ¥250</span>
+        <span class="chip green">後樂園+岡山城套票 ¥720</span>
+        <p>日本三大名園之一，5月正是初夏翠綠時節，適合帶爸媽悠閒散步。建議一入園就拿地圖，登上「唯心山」可俯瞰整個庭園與岡山城。</p>
+        <p style="font-size:12px; margin-top:4px; color:var(--muted)">開放時間：07:30–18:00（5月）</p>
+        <a class="map-link" href="https://maps.app.goo.gl/KorakuenGarden" target="_blank">岡山後樂園</a>
+        <div class="transport">
+          <div class="transport-icon">🚌</div>
+          <div class="transport-info">
+            <div class="route">岡山駅 → 後樂園前</div>
+            <div class="meta">巴士約 10 分 / 路面電車至城下站步行 10 分 ▸ ¥160/人</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🏯">
+      <div class="event-header">
+        <div class="event-time">11:00–11:30</div>
+        <div class="event-title">岡山城（烏城）</div>
+      </div>
+      <div class="event-body">
+        <span class="chip">大人 ¥400（套票已含）</span>
+        <p>後樂園南門出來、過月見橋即達，購套票可順遊，從天守閣可俯瞰後樂園全景。5月有機會碰到小型桃太郎祭。</p>
+        <a class="map-link" href="https://maps.app.goo.gl/OkayamaCastle" target="_blank">岡山城</a>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🍽️">
+      <div class="event-header">
+        <div class="event-time">11:30–12:30</div>
+        <div class="event-title">午餐｜デミカツ丼（多蜜醬炸豬排丼）</div>
+      </div>
+      <div class="event-body">
+        <span class="chip red">岡山必吃</span>
+        <p>岡山最具代表性的在地料理，昭和 6 年創業的老店「カツ丼 野村（原 味司野村）」是發祥店，秘傳多蜜醬汁濃郁香甜。有半份、2/3 份選項，帶爸媽吃剛好。</p>
+        <p style="font-size:12px; margin-top:4px; color:var(--muted)">
+          <strong>カツ丼 野村</strong>｜岡山市北区平和町1-10<br>
+          週二–週五 11:00–15:00｜週六日 11:00–14:30、17:00–20:30<br>
+          ⚠️ 週一公休。建議 11:00 開門前到場排隊，人多回轉快。
+        </p>
+        <a class="map-link" href="https://maps.app.goo.gl/NomuraKatsudon" target="_blank">カツ丼 野村</a>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🛍️">
+      <div class="event-header">
+        <div class="event-time">12:30–13:15</div>
+        <div class="event-title">伴手禮採買</div>
+      </div>
+      <div class="event-body">
+        <p><strong>推薦買什麼：</strong></p>
+        <p>・<strong>吉備糰子</strong>（きびだんご）｜廣榮堂，¥540/10入，岡山定番伴手禮</p>
+        <p>・<strong>白桃果凍</strong>｜岡山機場和岡山駅都有賣，保險起見先買</p>
+        <p>・<strong>白桃相關點心</strong>｜餅乾、糖果各種款式</p>
+        <a class="map-link" href="https://maps.app.goo.gl/OkayamaStation" target="_blank">岡山駅內商店（高島屋地下）</a>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🚌">
+      <div class="event-header">
+        <div class="event-time">13:30 出發</div>
+        <div class="event-title">前往岡山桃太郎機場</div>
+      </div>
+      <div class="event-body">
+        <div class="transport">
+          <div class="transport-icon">🚌</div>
+          <div class="transport-info">
+            <div class="route">岡山駅西口 → 岡山桃太郎機場</div>
+            <div class="meta">中鉄リムジンバス ▸ 約 30 分 ▸ ¥1,000/人 ▸ 乘換 0 次</div>
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--muted)">班次配合航班，班班可搭。現場自動售票機購票，現金支付。3人合計 ¥3,000。</p>
+      </div>
+    </div>
+
+    <div class="event" data-icon="🛂">
+      <div class="event-header">
+        <div class="event-time">14:00–15:30</div>
+        <div class="event-title">抵達機場 → 辦理登機手續</div>
+      </div>
+      <div class="event-body">
+        <span class="chip">岡山桃太郎空港</span>
+        <p>辦理虎航 check-in + 托運，通過出境審查。機場不大，30 分鐘內完成，可在出境後小逛一下。</p>
+        <a class="map-link" href="https://maps.app.goo.gl/OkayamaAirport" target="_blank">岡山桃太郎空港</a>
+      </div>
+    </div>
+
+    <div class="event" data-icon="✈️">
+      <div class="event-header">
+        <div class="event-time">15:55 起飛</div>
+        <div class="event-title">IT215 岡山 → 桃園</div>
+      </div>
+      <div class="event-body">
+        <span class="chip">台灣虎航</span>
+        <span class="chip">飛行約 2.5h</span>
+        <p>預計 17:40 抵達桃園機場。結束愉快的三天兩夜！</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-label">D3 費用概覽（3人）</div>
+  <div class="cost-box">
+    <div class="cost-row"><span class="label">後樂園+岡山城套票（3人）</span><span class="amount">¥2,160</span></div>
+    <div class="cost-row"><span class="label">巴士（駅→後樂園、3人）</span><span class="amount">¥480</span></div>
+    <div class="cost-row"><span class="label">デミカツ丼午餐（3人）</span><span class="amount">約 ¥3,000</span></div>
+    <div class="cost-row"><span class="label">伴手禮</span><span class="amount">依消費</span></div>
+    <div class="cost-row"><span class="label">機場巴士（3人）</span><span class="amount">¥3,000</span></div>
+    <div class="cost-row total"><span class="label">D3 預估小計</span><span class="amount">約 ¥8,000–12,000+</span></div>
+  </div>
+</div>
+
+<!-- INFO -->
+<div class="panel" id="info">
+
+  <div class="section-label">住宿資訊</div>
+
+  <div class="hotel-card">
+    <div class="name">🏨 D1 鳥取駅前スーパーホテル</div>
+    <div class="details">地址：鳥取市弥生町238-3 | 電話：0857-50-9000</div>
+    <div class="amenities">
+      <span class="chip">步行至鳥取站 5 分</span>
+      <span class="chip">早餐另計</span>
+    </div>
+    <a class="map-link" href="https://maps.app.goo.gl/TottoriSuperHotel" target="_blank" style="display:block; margin-top:8px">Google Map</a>
+  </div>
+
+  <div class="hotel-card">
+    <div class="name">🏨 D2 岡山駅東口スーパーホテル</div>
+    <div class="details">地址：岡山市北区駅元町1-6 | 電話：086-803-9000</div>
+    <div class="amenities">
+      <span class="chip green">天然溫泉</span>
+      <span class="chip green">含早餐</span>
+      <span class="chip">步行至岡山站 5 分</span>
+      <span class="chip red">20:00 check-in</span>
+    </div>
+    <a class="map-link" href="https://maps.app.goo.gl/OkayamaSuperHotelEast" target="_blank" style="display:block; margin-top:8px">Google Map</a>
+  </div>
+
+  <div class="section-label">三天費用總計（3人）</div>
+  <div class="cost-box">
+    <div class="cost-header">💴 費用估算（日幣）</div>
+    <div class="cost-row"><span class="label">✈️ 機票（虎航，來回，3人）</span><span class="amount">另計</span></div>
+    <div class="cost-row"><span class="label">🚗 租車（米子→鳥取，1天）</span><span class="amount">約 ¥8,000–12,000</span></div>
+    <div class="cost-row"><span class="label">🏨 住宿（2晚，3人）</span><span class="amount">另計</span></div>
+    <div class="cost-row"><span class="label">🚂 JR 鳥取→岡山（3人）</span><span class="amount">約 ¥13,500</span></div>
+    <div class="cost-row"><span class="label">🚌 觀光計程車（D2）</span><span class="amount">約 ¥9,000–12,000</span></div>
+    <div class="cost-row"><span class="label">🚌 機場巴士（D3）</span><span class="amount">¥3,000</span></div>
+    <div class="cost-row"><span class="label">🎫 景點門票（3人合計）</span><span class="amount">約 ¥7,000</span></div>
+    <div class="cost-row"><span class="label">🍜 餐費（3天，3人）</span><span class="amount">約 ¥25,000–35,000</span></div>
+    <div class="cost-row"><span class="label">🛍️ 購物/伴手禮</span><span class="amount">依個人</span></div>
+    <div class="cost-row total"><span class="label">現地費用合計</span><span class="amount">約 ¥65,000–80,000</span></div>
+  </div>
+
+  <div class="note" style="border-radius:6px; padding:12px; margin-top:8px;">5/18 是週日，5/20（二）是平日，大部分景點正常營業。カツ丼野村週一公休但 5/20 是週二，可以放心去！</div>
+</div>
+
+<!-- PREP -->
+<div class="panel" id="prep">
+
+  <div class="section-label">🌐 網路與通訊</div>
+  <div class="info-section">
+    <div class="info-item">
+      <strong>推薦：IIJmio / AHAMobile SIM 卡</strong>
+      <p>台灣買好日本 SIM 卡最省事，也可考慮 eSIM。鳥取山區部分地方訊號略弱，但主要景點都沒問題。</p>
+    </div>
+    <div class="info-item">
+      <strong>Google Maps 離線地圖</strong>
+      <p>出發前下載鳥取縣、岡山縣離線地圖，租車期間開車導航用，以防山區訊號差。</p>
+    </div>
+    <div class="info-item">
+      <strong>翻譯 App</strong>
+      <p>Google 翻譯下載日文離線包，相機翻譯功能看菜單很好用。</p>
+    </div>
+  </div>
+
+  <div class="section-label">💴 換匯建議</div>
+  <div class="info-section">
+    <div class="info-item">
+      <strong>建議準備現金</strong>
+      <p>日本部分小店、觀光計程車、神社仍只收現金。建議三人合帶約 ¥80,000–100,000 日幣現金。</p>
+    </div>
+    <div class="info-item">
+      <strong>換匯地點</strong>
+      <p>台灣銀行、兆豐銀行匯率通常較好，建議提前在台灣換好。機場 ATM 也可提領，手續費約 ¥110/次。</p>
+    </div>
+    <div class="info-item">
+      <strong>信用卡</strong>
+      <p>大型百貨、飯店、連鎖超市可刷 Visa/Master，但農漁市場、老店多為現金。</p>
+    </div>
+  </div>
+
+  <div class="section-label">🛡️ 旅遊保險</div>
+  <div class="info-section">
+    <div class="info-item">
+      <strong>強烈建議購買</strong>
+      <p>日本醫療費用極高，建議購買含海外急難救助的旅遊平安險。刷機票的信用卡可能附贈，出發前確認保障內容。</p>
+    </div>
+    <div class="info-item">
+      <strong>租車保險</strong>
+      <p>Toyota Rent-a-Car 基本保險已含，可加購 CDW（車損免責）降低自負額風險。帶爸媽同行強烈建議加保。</p>
+    </div>
+  </div>
+
+  <div class="section-label">✅ 行前待辦事項</div>
+  <div class="info-section">
+    <ul class="checklist" id="todo-list">
+      <li onclick="toggleCheck(this)"><input type="checkbox"> 觀光計程車 9 號線預約（<a href="https://www.tottori-guide.jp/kanko-taxi/" target="_blank">官網</a>）</li>
+      <li onclick="toggleCheck(this)"><input type="checkbox"> 確認 Toyota 租車預訂（米子機場 13:30 取車）</li>
+      <li onclick="toggleCheck(this)"><input type="checkbox"> 確認晚餐餐廳是否需要訂位（D1 鳥取晚餐）</li>
+      <li onclick="toggleCheck(this)"><input type="checkbox"> JR 鳥取→岡山班次查詢（買指定席）</li>
+      <li onclick="toggleCheck(this)"><input type="checkbox"> 購買日本 SIM 卡或 eSIM</li>
+      <li onclick="toggleCheck(this)"><input type="checkbox"> 換好日幣現金（建議 ¥80,000–100,000）</li>
+      <li onclick="toggleCheck(this)"><input type="checkbox"> 購買旅遊平安險</li>
+      <li onclick="toggleCheck(this)"><input type="checkbox"> 下載 Google Maps 離線地圖（鳥取・岡山）</li>
+      <li onclick="toggleCheck(this)"><input type="checkbox"> 下載 Google 翻譯日文離線包</li>
+      <li onclick="toggleCheck(this)"><input type="checkbox"> 確認爸媽護照有效期（出境日起至少 6 個月）</li>
+      <li onclick="toggleCheck(this)"><input type="checkbox"> 列印或截圖飯店、租車確認信</li>
+      <li onclick="toggleCheck(this)"><input type="checkbox"> 確認虎航行李規定（隨身行李尺寸/重量）</li>
+    </ul>
+  </div>
+
+  <div class="section-label">🎒 行李建議</div>
+  <div class="info-section">
+    <ul class="checklist">
+      <li><input type="checkbox" checked disabled> 護照、信用卡、現金</li>
+      <li><input type="checkbox" checked disabled> 國際駕照（自駕必備！）</li>
+      <li><input type="checkbox" checked disabled> 台灣駕照（日本入境需正本）</li>
+      <li><input type="checkbox" checked disabled> 換洗衣物（5/18 日本 5 月約 18–24°C）</li>
+      <li><input type="checkbox" checked disabled> 薄外套（早晚涼）</li>
+      <li><input type="checkbox" checked disabled> 防曬乳（鳥取砂丘日曬強烈）</li>
+      <li><input type="checkbox" checked disabled> 舒適步行鞋（砂丘爬坡、後樂園散步）</li>
+      <li><input type="checkbox" checked disabled> 雨傘或折疊傘</li>
+      <li><input type="checkbox" checked disabled> 常備藥（腸胃藥、感冒藥）</li>
+      <li><input type="checkbox" checked disabled> 行動電源</li>
+    </ul>
+  </div>
+
+  <div class="section-label">📞 緊急聯絡</div>
+  <div class="info-section">
+    <div class="info-item"><strong>日本報警</strong><p>110</p></div>
+    <div class="info-item"><strong>日本救護車</strong><p>119</p></div>
+    <div class="info-item"><strong>台灣外交部緊急求助</strong><p>+886-800-085-095（免付費）</p></div>
+    <div class="info-item"><strong>駐大阪台北經濟文化辦事處</strong><p>+81-6-6443-8481（覆蓋鳥取、岡山）</p></div>
+    <div class="info-item"><strong>Toyota 租車緊急道路救援</strong><p>0120-00-5656</p></div>
+  </div>
+
+</div>
+
+<footer>
+  本行程表由 Claude 整理製作 ▸ 出發前請再次確認各景點營業時間與票價（可能有異動）<br>
+  虎航 IT724 / IT215 ▸ 2025年5月18–20日 ▸ 三人同行
+</footer>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleCheck(li) {
+  const cb = li.querySelector('input[type="checkbox"]');
+  if (cb) {
+    cb.checked = !cb.checked;
+    li.classList.toggle('checked', cb.checked);
+  }
+}
+</script>
+</body>
+</html>
