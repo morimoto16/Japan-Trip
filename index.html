@@ -106,6 +106,7 @@
   .tab-btn[data-day="3"].active { border-color: var(--d3); }
   .tab-btn[data-day="info"].active { border-color: var(--gold); }
   .tab-btn[data-day="prep"].active { border-color: #888; }
+  .tab-btn[data-day="ledger"].active { border-color: #e67e22; }
 
   /* CONTENT PANELS */
   .panel { display: none; padding: 24px 20px; max-width: 680px; margin: 0 auto; }
@@ -342,13 +343,78 @@
   .hotel-card .amenities { margin-top: 8px; }
 
   footer {
-    text-align: center;
-    padding: 32px 20px;
     font-size: 11px;
     color: var(--muted);
     border-top: 1px solid var(--border);
     margin-top: 20px;
   }
+
+  /* LEDGER */
+  .ledger-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .ledger-stat {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .ledger-stat .stat-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .ledger-stat .stat-value { font-family: 'Noto Serif TC', serif; font-size: 20px; font-weight: 700; color: var(--ink); }
+  .ledger-stat .stat-twd { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .ledger-stat.highlight { background: var(--warm); border-color: var(--warm); grid-column: 1 / -1; }
+  .ledger-stat.highlight .stat-label { color: rgba(255,255,255,0.7); }
+  .ledger-stat.highlight .stat-value { color: #f5e6c8; font-size: 26px; }
+  .ledger-stat.highlight .stat-twd { color: rgba(255,255,255,0.6); font-size: 13px; }
+  .ledger-form {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .ledger-form-title { font-family: 'Noto Serif TC', serif; font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--ink); }
+  .form-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .form-row input, .form-row select {
+    flex: 1; min-width: 80px; padding: 8px 10px;
+    border: 1px solid var(--border); border-radius: 6px;
+    font-family: 'Noto Sans TC', sans-serif; font-size: 13px;
+    color: var(--ink); background: var(--light); outline: none;
+  }
+  .form-row input:focus, .form-row select:focus { border-color: #e67e22; }
+  .btn-add {
+    width: 100%; padding: 10px; background: #e67e22; color: white;
+    border: none; border-radius: 6px; font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px;
+  }
+  .btn-add:active { background: #ca6f1e; }
+  .ledger-list { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 16px; }
+  .ledger-list-header {
+    background: var(--sand); padding: 10px 16px; font-size: 13px; font-weight: 600;
+    border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
+  }
+  .ledger-empty { padding: 24px; text-align: center; color: var(--muted); font-size: 13px; }
+  .ledger-item { display: flex; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); gap: 10px; }
+  .ledger-item:last-child { border-bottom: none; }
+  .ledger-item-icon { font-size: 18px; flex-shrink: 0; }
+  .ledger-item-info { flex: 1; min-width: 0; }
+  .ledger-item-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ledger-item-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .ledger-item-amount { text-align: right; flex-shrink: 0; }
+  .ledger-item-jpy { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .ledger-item-twd { font-size: 11px; color: var(--muted); }
+  .ledger-item-del { background: none; border: none; color: #ccc; font-size: 16px; cursor: pointer; padding: 2px 4px; flex-shrink: 0; }
+  .ledger-item-del:hover { color: var(--accent); }
+  .day-filter { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .day-filter-btn {
+    padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border);
+    background: white; font-size: 12px; cursor: pointer; color: var(--muted);
+  }
+  .day-filter-btn.active { background: var(--ink); color: white; border-color: var(--ink); }
 </style>
 </head>
 <body>
@@ -371,6 +437,7 @@
   <button class="tab-btn" data-day="3" onclick="switchTab('d3', this)">D3 岡山→桃園</button>
   <button class="tab-btn" data-day="info" onclick="switchTab('info', this)">住宿 &amp; 費用</button>
   <button class="tab-btn" data-day="prep" onclick="switchTab('prep', this)">行前準備</button>
+  <button class="tab-btn" data-day="ledger" onclick="switchTab('ledger', this)">💰 記帳</button>
 </div>
 
 <!-- D1 -->
@@ -900,6 +967,84 @@
 
 </div>
 
+<!-- LEDGER -->
+<div class="panel" id="ledger">
+
+  <div class="ledger-summary">
+    <div class="ledger-stat">
+      <div class="stat-label">D1 支出</div>
+      <div class="stat-value" id="sum-d1">NT$0</div>
+      <div class="stat-twd" id="sum-d1-twd">¥0</div>
+    </div>
+    <div class="ledger-stat">
+      <div class="stat-label">D2 支出</div>
+      <div class="stat-value" id="sum-d2">NT$0</div>
+      <div class="stat-twd" id="sum-d2-twd">¥0</div>
+    </div>
+    <div class="ledger-stat">
+      <div class="stat-label">D3 支出</div>
+      <div class="stat-value" id="sum-d3">NT$0</div>
+      <div class="stat-twd" id="sum-d3-twd">¥0</div>
+    </div>
+    <div class="ledger-stat">
+      <div class="stat-label">筆數</div>
+      <div class="stat-value" id="sum-count">0</div>
+      <div class="stat-twd">筆記錄</div>
+    </div>
+    <div class="ledger-stat highlight">
+      <div class="stat-label">三天總花費（台幣）</div>
+      <div class="stat-value" id="sum-total">NT$0</div>
+      <div class="stat-twd" id="sum-total-twd">含日幣換算，匯率 ¥5 = NT$1</div>
+    </div>
+  </div>
+
+  <div class="ledger-form">
+    <div class="ledger-form-title">➕ 新增支出</div>
+    <div class="form-row">
+      <input type="text" id="entry-name" placeholder="項目名稱（如：螃蟹拉麵）" style="flex:2">
+      <select id="entry-day">
+        <option value="D1">D1 5/18</option>
+        <option value="D2">D2 5/19</option>
+        <option value="D3">D3 5/20</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <select id="entry-cat">
+        <option value="🍜">🍜 餐飲</option>
+        <option value="🎫">🎫 門票</option>
+        <option value="🚗">🚗 交通</option>
+        <option value="🏨">🏨 住宿</option>
+        <option value="🛍️">🛍️ 購物</option>
+        <option value="💊">💊 其他</option>
+      </select>
+      <select id="entry-currency" onchange="updateAmountPlaceholder()" style="max-width:90px;">
+        <option value="JPY">日幣 ¥</option>
+        <option value="TWD">台幣 NT$</option>
+      </select>
+      <input type="number" id="entry-amount" placeholder="輸入金額" min="0">
+    </div>
+    <button class="btn-add" onclick="addEntry()">記帳</button>
+  </div>
+
+  <div class="day-filter">
+    <button class="day-filter-btn active" onclick="filterDay('all', this)">全部</button>
+    <button class="day-filter-btn" onclick="filterDay('D1', this)">D1</button>
+    <button class="day-filter-btn" onclick="filterDay('D2', this)">D2</button>
+    <button class="day-filter-btn" onclick="filterDay('D3', this)">D3</button>
+  </div>
+
+  <div class="ledger-list">
+    <div class="ledger-list-header">
+      <span>支出明細</span>
+      <button onclick="clearAll()" style="background:none;border:none;font-size:12px;color:var(--muted);cursor:pointer;">清除全部</button>
+    </div>
+    <div id="ledger-entries">
+      <div class="ledger-empty">還沒有記錄，出發後來記第一筆吧！✈️</div>
+    </div>
+  </div>
+
+</div>
+
 <footer>
   本行程表由 Claude 整理製作 ▸ 出發前請再次確認各景點營業時間與票價（可能有異動）<br>
   虎航 IT724 / IT215 ▸ 2025年5月18–20日 ▸ 三人同行
@@ -911,6 +1056,7 @@ function switchTab(id, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
+  if (id === 'ledger') renderEntries('all');
 }
 
 function toggleCheck(li) {
@@ -920,6 +1066,122 @@ function toggleCheck(li) {
     li.classList.toggle('checked', cb.checked);
   }
 }
+
+// ── LEDGER ──
+const RATE = 5; // ¥5 = NT$1
+let entries = JSON.parse(localStorage.getItem('trip-ledger') || '[]');
+let currentFilter = 'all';
+
+function save() { localStorage.setItem('trip-ledger', JSON.stringify(entries)); }
+function fmt(n) { return Math.round(n).toLocaleString(); }
+
+// 每筆統一換算成台幣
+function toTWD(e) {
+  return e.currency === 'TWD' ? e.amount : Math.ceil(e.amount / RATE);
+}
+
+function updateAmountPlaceholder() {
+  const cur = document.getElementById('entry-currency').value;
+  document.getElementById('entry-amount').placeholder = cur === 'JPY' ? '輸入日幣金額' : '輸入台幣金額';
+}
+
+function addEntry() {
+  const name = document.getElementById('entry-name').value.trim();
+  const amount = parseFloat(document.getElementById('entry-amount').value);
+  const day = document.getElementById('entry-day').value;
+  const cat = document.getElementById('entry-cat').value;
+  const currency = document.getElementById('entry-currency').value;
+  if (!name || !amount || amount <= 0) {
+    document.getElementById('entry-name').focus();
+    return;
+  }
+  entries.push({ id: Date.now(), name, amount, day, cat, currency });
+  save();
+  document.getElementById('entry-name').value = '';
+  document.getElementById('entry-amount').value = '';
+  renderEntries(currentFilter);
+  updateSummary();
+}
+
+function deleteEntry(id) {
+  entries = entries.filter(e => e.id !== id);
+  save();
+  renderEntries(currentFilter);
+  updateSummary();
+}
+
+function clearAll() {
+  if (entries.length === 0) return;
+  if (!confirm('確定要清除所有記帳記錄嗎？')) return;
+  entries = [];
+  save();
+  renderEntries(currentFilter);
+  updateSummary();
+}
+
+function filterDay(day, btn) {
+  currentFilter = day;
+  document.querySelectorAll('.day-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderEntries(day);
+}
+
+function renderEntries(filter) {
+  const container = document.getElementById('ledger-entries');
+  const filtered = filter === 'all' ? entries : entries.filter(e => e.day === filter);
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="ledger-empty">還沒有記錄，出發後來記第一筆吧！✈️</div>';
+    updateSummary();
+    return;
+  }
+  container.innerHTML = [...filtered].reverse().map(e => {
+    const isJPY = e.currency === 'JPY' || !e.currency; // 舊資料向下相容
+    const mainLabel = isJPY ? `¥${fmt(e.amount)}` : `NT$${fmt(e.amount)}`;
+    const subLabel  = isJPY ? `≈ NT$${fmt(toTWD(e))}` : `（台幣直接計入）`;
+    const badge = isJPY
+      ? `<span style="font-size:10px;background:#e8eff8;color:#1a3a5c;border-radius:3px;padding:1px 5px;">日幣</span>`
+      : `<span style="font-size:10px;background:#e8f4e8;color:#2c5f2e;border-radius:3px;padding:1px 5px;">台幣</span>`;
+    return `
+    <div class="ledger-item">
+      <div class="ledger-item-icon">${e.cat}</div>
+      <div class="ledger-item-info">
+        <div class="ledger-item-name">${e.name} ${badge}</div>
+        <div class="ledger-item-meta">${e.day}</div>
+      </div>
+      <div class="ledger-item-amount">
+        <div class="ledger-item-jpy">${mainLabel}</div>
+        <div class="ledger-item-twd">${subLabel}</div>
+      </div>
+      <button class="ledger-item-del" onclick="deleteEntry(${e.id})">✕</button>
+    </div>`;
+  }).join('');
+  updateSummary();
+}
+
+function updateSummary() {
+  const sumTWD = (day) => entries
+    .filter(e => day === 'all' || e.day === day)
+    .reduce((a, e) => a + toTWD(e), 0);
+  const sumJPY = (day) => entries
+    .filter(e => (day === 'all' || e.day === day) && (e.currency === 'JPY' || !e.currency))
+    .reduce((a, e) => a + e.amount, 0);
+
+  const d1twd = sumTWD('D1'), d2twd = sumTWD('D2'), d3twd = sumTWD('D3');
+  const total = sumTWD('all');
+
+  // 卡片：主顯示台幣，副顯示換算前的日幣小計（只算日幣筆）
+  document.getElementById('sum-d1').textContent = 'NT$' + fmt(d1twd);
+  document.getElementById('sum-d1-twd').textContent = `含 ¥${fmt(sumJPY('D1'))} 換算`;
+  document.getElementById('sum-d2').textContent = 'NT$' + fmt(d2twd);
+  document.getElementById('sum-d2-twd').textContent = `含 ¥${fmt(sumJPY('D2'))} 換算`;
+  document.getElementById('sum-d3').textContent = 'NT$' + fmt(d3twd);
+  document.getElementById('sum-d3-twd').textContent = `含 ¥${fmt(sumJPY('D3'))} 換算`;
+  document.getElementById('sum-count').textContent = entries.length;
+  document.getElementById('sum-total').textContent = 'NT$' + fmt(total);
+  document.getElementById('sum-total-twd').textContent = `日幣 ¥${fmt(sumJPY('all'))} 已換算，匯率 ¥5 = NT$1`;
+}
+
+updateSummary();
 </script>
 </body>
 </html>
